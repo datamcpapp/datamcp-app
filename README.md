@@ -135,40 +135,6 @@ No contracts. No cancellation fees. Downgrade to Free anytime.
 | Database connections | SSL/TLS always enabled. Verified CA certificates for cloud providers. |
 | Audit trail | Every query logged with timestamp, user, execution time, and result metadata. |
 
----
-
-## Architecture
-
-```
-┌─────────────┐     ┌──────────────────┐     ┌──────────────┐
-│  AI Tool     │────>│  DataMCP Gateway │────>│  Your        │
-│  (Cursor,    │ MCP │  (NestJS)        │ SSL │  PostgreSQL  │
-│   Claude,    │<────│                  │<────│              │
-│   VS Code)   │     │  - Auth          │     └──────────────┘
-└─────────────┘     │  - Permissions   │
-                    │  - Query exec    │
-                    │  - Schema cache  │
-                    │  - AI descriptions│
-                    │  - Audit logging │
-                    └──────────────────┘
-                           │
-                    ┌──────┴───────┐
-                    │  Dashboard   │
-                    │  (Next.js)   │
-                    │              │
-                    │  - Connections│
-                    │  - MCP links │
-                    │  - Logs      │
-                    │  - Billing   │
-                    │  - Settings  │
-                    └──────────────┘
-```
-
-**Backend:** NestJS, BullMQ (job queues), Redis (caching + live activity), Supabase (auth + data), Stripe (billing)
-
-**Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4, shadcn/ui, React Query
-
-**Infrastructure:** Render.com, Supabase, Redis, Resend (transactional email), Stripe (payments)
 
 ---
 
