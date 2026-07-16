@@ -1,229 +1,121 @@
-# DataMCP
+# datamcp
 
-**Managed MCP server for PostgreSQL. Connect Cursor, Claude, and other AI tools to your database with granular permission control, query audit logs, and zero infrastructure to manage.**
+**Hosted MCP gateway for PostgreSQL and OpenAPI.**
 
-DataMCP is a secure PostgreSQL MCP gateway that sits between your database and AI coding assistants. Instead of pasting raw credentials into Cursor or giving Claude full database access, you connect them through DataMCP - which enforces permissions at the query level, logs every request, and blocks dangerous operations before they reach your database.
+`datamcp` turns a PostgreSQL 12+ database or an OpenAPI 3.x API into a managed remote HTTPS MCP endpoint for AI clients. It keeps backend credentials on the connection, authenticates MCP clients separately, and applies permissions per MCP link.
 
-Works with Cursor, Claude Desktop, VS Code, Windsurf, Claude Code, and any MCP-compatible client.
+- Website: [datamcp.app](https://datamcp.app)
+- Dashboard: [dashboard.datamcp.app](https://dashboard.datamcp.app)
+- Documentation: [datamcp.app/docs](https://datamcp.app/docs)
+- Pricing: [datamcp.app/pricing](https://datamcp.app/pricing)
+- Machine-readable product summary: [datamcp.app/llms.txt](https://datamcp.app/llms.txt)
 
-Website: [datamcp.app](https://datamcp.app) | Dashboard: [dashboard.datamcp.app](https://dashboard.datamcp.app) | Docs: [datamcp.app/docs](https://datamcp.app/docs)
+## When to use datamcp
 
----
+Use `datamcp` when Cursor, Claude, ChatGPT, VS Code, or another compatible remote MCP client needs controlled access to:
 
-## What it does
+- a PostgreSQL database without storing the database connection string in the AI client's configuration;
+- a REST API described by OpenAPI 3.x, Swagger UI, or Redoc without generating and deploying a separate MCP server;
+- separate MCP links for different clients or users, each with its own authentication and source permissions.
 
-1. You paste your PostgreSQL connection string into DataMCP
-2. We encrypt it (AES-256-GCM), extract your schema, and generate AI-readable descriptions for every table and column
-3. You get an MCP URL that you drop into Cursor, Claude, or any MCP-compatible tool
-4. AI sees your schema, can run queries within your permission rules, and helps you build faster
+`datamcp` hosts the MCP transport and control layer. It is not a marketplace for proxying arbitrary third-party MCP servers.
 
-No SDK. No code changes. One URL, one API key — works in under 60 seconds.
+## Supported sources
 
----
+| Source | Current support |
+| --- | --- |
+| PostgreSQL | PostgreSQL 12+ through standard PostgreSQL credentials, including providers such as Supabase, Neon, AWS RDS, and Google Cloud SQL |
+| OpenAPI | OpenAPI 3.x JSON or YAML specifications and supported Swagger UI or Redoc documentation pages |
 
-## Core features
+MySQL and other database engines are not currently supported.
 
-### MCP Tools (what AI gets)
+## PostgreSQL MCP
 
-| Tool | What it does |
-|---|---|
-| `query` | Execute SQL (SELECT, INSERT, UPDATE, DELETE — depending on permissions). 100-row limit, 30-second timeout. |
-| `get_schema` | Full schema: tables, columns, types, foreign keys, indexes — with AI-generated descriptions merged in. |
-| `get_table_details` | Deep dive into a specific table: columns, constraints, relationships. |
-| `get_permissions` | What this MCP link is allowed to do. AI can self-check before attempting a query. |
-| `get_schema_changes` | Diff history between schema versions. "What changed since last week?" |
-| `resync_schema` | Re-extract schema from the live database when AI detects it's stale. |
+PostgreSQL connections expose schema and query tools through a hosted MCP endpoint.
 
-### Permission system
+- Read Only permits `SELECT`.
+- Read, Write & Delete permits `SELECT`, `INSERT`, `UPDATE`, and `DELETE`, but not DDL.
+- Full Access permits operations allowed by the effective database credentials.
+- Custom permissions can restrict operations by table.
+- PostgreSQL query activity and permission denials are available for review.
+- Connection credentials are encrypted at rest with AES-256-GCM.
 
-Every MCP link has its own permission scope. You choose:
+Product overview: [PostgreSQL MCP server](https://datamcp.app/postgresql-mcp-server)
 
-- **Read-only** — SELECT queries, view schema
-- **Read-write** — SELECT + INSERT, UPDATE, DELETE
-- **Full access** — Everything including DDL (CREATE, ALTER, DROP)
-- **Custom** — Per-table control: allow SELECT on `users` but block `billing_events` entirely
+## OpenAPI and Swagger MCP
 
-Every query is validated against the permission scope **before** execution. Denied queries are logged and returned to the AI with an explanation of why they were blocked.
+OpenAPI connections expose four schema-aware MCP tools:
 
-### AI schema descriptions
+- `list_api_endpoints`
+- `get_endpoint_details`
+- `get_api_schema`
+- `call_endpoint`
 
-DataMCP auto-generates a one-sentence description for every table and a 6-word description for every column using OpenAI gpt-4o-mini. These descriptions are served to AI tools through `get_schema`, dramatically improving query quality on ambiguous schemas.
+Upstream API authentication can use an API key, a pre-issued Bearer token, HTTP Basic authentication, or custom headers. Credentials remain on the `datamcp` connection and are injected into approved upstream calls.
 
-- Descriptions are stored in DataMCP's metadata layer — we never write `COMMENT ON` to your database, never require write access
-- You can review and edit every description in the dashboard before it reaches your AI
-- On schema changes (new tables/columns detected via resync), we generate descriptions only for the new items and mark them for review with a `NEW` badge
-- Rule-based fallback for common patterns (created_at, user_id, etc.) if the LLM is unavailable
+Read Only links permit `GET` and `HEAD` while blocking `POST`, `PUT`, `PATCH`, and `DELETE`. Individual operations can also be hidden from discovery and execution.
 
-### Connection health monitoring
+OpenAPI endpoint calls do not currently appear in the `datamcp` activity log. Use upstream API or infrastructure logs for those calls.
 
-- Automated health checks every hour using the same SSL strategy as real queries
-- 5 consecutive failures: connection marked as Error, MCP links disabled, email alert sent to org owners and admins
-- Auto-recovery: next successful health check restores the connection automatically
-- One-click **Reconnect** from the dashboard when your database comes back up
-- Real PostgreSQL error messages shown directly on the connection card
+Product overview: [OpenAPI to MCP](https://datamcp.app/openapi-to-mcp)
 
-### Live activity indicator
+## Authentication and permissions
 
-Every connection card shows how many unique AI clients (Cursor, Claude, etc.) and dashboard users ran a query in the last 15 minutes. Backed by Redis sorted sets — survives restarts, consistent across replicas. Hover for a breakdown of what's being counted and the timestamp of the most recent query.
+Two separate security boundaries are involved:
 
-### Activity logs
+1. The MCP client authenticates to `datamcp` with an API key or OAuth 2.0 with PKCE.
+2. `datamcp` uses the connection credential to access the PostgreSQL database or upstream REST API.
 
-Every SQL query executed through MCP is logged:
+Authentication identifies the MCP client. The MCP link then narrows the operations available to that client. Backend database grants or upstream API authorization remain an independent boundary.
 
-- Query text, execution status, execution time (ms), row count
-- Which MCP link and permission preset was used
-- Permission violations: which rule blocked a denied query
-- Retention: 7 days (Free), 30 days (Pro), 365 days (Enterprise)
+Gateway overview: [MCP gateway](https://datamcp.app/mcp-gateway)
 
-### Organizations and team access
+## Compatible clients
 
-- Every connection, MCP link, and team member belongs to an organization
-- Roles: **Owner** (full control), **Admin** (manage members + connections), **Member** (use connections, create own MCP links)
-- Invite teammates by email, revoke anytime
-- Per-organization billing and plan limits
+Remote MCP endpoints can be configured in clients that support the required remote MCP transport and authentication flow, including:
 
----
+- Cursor
+- Claude
+- ChatGPT
+- VS Code
 
-## Supported AI tools
+Setup guides: [Cursor](https://datamcp.app/integrations/cursor), [Claude](https://datamcp.app/integrations/claude), [ChatGPT](https://datamcp.app/integrations/chatgpt), and [VS Code](https://datamcp.app/integrations/vscode).
 
-| Tool | Integration | Config |
-|---|---|---|
-| Cursor | Native MCP | `.cursor/mcp.json` with `url` + `Authorization` header |
-| Claude Desktop | via mcp-remote | `claude_desktop_config.json` with `npx mcp-remote` |
-| VS Code | Native MCP | `mcp.json` with `url` + `Authorization` header |
-| Windsurf | Native MCP | Same as VS Code |
-| Claude Code (CLI) | Native MCP | `claude mcp add --transport streamable-http` |
-| Kiro | Native MCP | Same as VS Code |
-| Zed | Native MCP | Same as VS Code |
-| Any MCP client | MCP Protocol | Standard streamable-http transport |
+## Plans
 
-## Supported databases
+| Plan | Price | Source connections | MCP links | Members | Activity retention |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Free | $0 | 1 | 1 | 2 | 7 days |
+| Pro | $19/month | 10 | Unlimited | 10 | 30 days |
+| Enterprise | $49/month | Unlimited | Unlimited | Unlimited | 365 days |
 
-PostgreSQL 12+ from any provider:
+See the [pricing page](https://datamcp.app/pricing) for the current public plan details.
 
-Supabase, Neon, AWS RDS, Google Cloud SQL, Microsoft Azure, Heroku Postgres, DigitalOcean, and any self-hosted PostgreSQL accessible over the internet.
+## Current limitations
 
-SSL/TLS verified with bundled CA certificates for all major cloud providers. Self-signed certificates supported via configurable SSL mode.
+`datamcp` does not currently offer:
 
----
-
-## Pricing
-
-|  | Free | Pro | Enterprise |
-|---|---|---|---|
-| **Price** | $0 forever | $19/month | $49/month |
-| PostgreSQL connections | 1 | 3 | 15 |
-| MCP links per connection | 1 | 5 | 50 |
-| Team members per org | 2 | 5 | 25 |
-| Activity log retention | 7 days | 30 days | 365 days |
-| Custom per-table permissions | — | Yes | Yes |
-| Audit export | — | — | Yes |
-| Priority support | — | — | Yes |
-
-No contracts. No cancellation fees. Downgrade to Free anytime.
-
----
-
-## Security
-
-| Layer | Implementation |
-|---|---|
-| Credentials at rest | AES-256-GCM encryption. Plaintext connection strings never stored. |
-| API key storage | SHA-256 hashed. Only the prefix stored for identification. |
-| MCP client auth | OAuth 2.0 with PKCE, or API key via Bearer token. |
-| Query validation | Every SQL statement parsed and checked against permission scope before execution. |
-| Database connections | SSL/TLS always enabled. Verified CA certificates for cloud providers. |
-| Audit trail | Every query logged with timestamp, user, execution time, and result metadata. |
-
-
----
-
-## Market position
-
-### What we are
-
-A **middleware layer** between PostgreSQL databases and AI-powered development tools. We solve the problem of "how do I let Cursor/Claude see my database schema and run queries without giving it my raw connection string and full admin access."
-
-### Who it's for
-
-- **Individual developers** using AI coding assistants who want their AI to understand their database schema
-- **Dev teams** who want to share database access across multiple AI tools with different permission levels per tool and per person
-- **CTOs and security-conscious orgs** who need audit trails and per-table permission control before allowing AI tools to touch production data
-
-### Competitive landscape
-
-| Alternative | What DataMCP solves |
-|---|---|
-| Pasting schema into AI chat | Stale, manual, no query execution, no permission control |
-| Direct DB connection in AI tool | No permission layer, no audit trail, credentials in plaintext config files |
-| Building a custom MCP server | Weeks of engineering, no dashboard, no team features, no monitoring |
-| Database GUI with AI features | Vendor lock-in to one tool; DataMCP works with any MCP client |
-
-### Key differentiators
-
-1. **Protocol-native.** Built on MCP from day one. Works with any MCP-compatible client automatically — present and future.
-2. **Permission-first.** AI can't do anything you didn't explicitly allow. Not "AI has admin, we hope it behaves."
-3. **Multi-tool.** One connection serves Cursor, Claude Desktop, VS Code, and any future MCP client simultaneously — each with its own permission scope.
-4. **Zero-install for end users.** No SDK, no package, no code changes. One URL in a config file.
-5. **AI-enhanced metadata.** Auto-generated schema descriptions make AI dramatically better at understanding ambiguous column names and table relationships.
-
----
-
-## Current state (April 2026)
-
-Live and serving production traffic. Users connect real PostgreSQL databases and query them through AI tools daily.
-
-**Recent releases (v0.9.x):**
-
-- AI schema descriptions with incremental generation on schema changes
-- Connection error handling with one-click reconnect and email alerts
-- Live activity indicator (Redis-backed, unique clients per 15-minute window)
-- Schema resync from dashboard with real-time progress bar
-- Email preferences with GDPR-compliant opt-in/out
-- Persistent connection pooling (10x query speedup)
-- SSL CA certificate bundles for all major cloud providers
-
-**Coming next:**
-
-- PostgreSQL read-replica proxy (direct psql/pgAdmin access through DataMCP's permission layer)
-- AI chat interface in the dashboard
-- Self-hosted edition (Docker, deploy anywhere)
-
----
-
-## FAQ
-
-**Is DataMCP a managed MCP server or self-hosted?**
-Managed. You sign up, connect your database, and get an MCP URL. No server to run, no infrastructure to manage. A self-hosted Docker edition is on the roadmap.
-
-**How is this different from just connecting Cursor directly to my database?**
-Direct connection gives Cursor your full credentials with no restrictions - it can SELECT, DELETE, DROP, anything your database user can do. DataMCP adds a permission layer in front. You define exactly what queries are allowed, and every query goes through validation before it hits your database. Plus you get a full audit log of what the AI actually ran.
-
-**How do I set up PostgreSQL permissions for AI tools like Cursor?**
-The recommended approach with DataMCP: create a dedicated read-only PostgreSQL user for AI access, connect it to DataMCP, then use DataMCP's permission presets to further restrict access (specific schemas, specific tables, SELECT-only). This gives you two independent permission layers - PostgreSQL role-level and DataMCP application-level. DataMCP's effective permissions = the intersection of both.
-
-**Can I give different AI tools different permission levels?**
-Yes. Each MCP link has its own permission preset. You can give your local Cursor READ_WRITE on the dev schema, give a contractor's Claude READ_ONLY on a specific schema only, and block production data entirely for external tools - all from the same database connection.
-
-**Does DataMCP work with Cursor specifically?**
-Yes. Cursor supports MCP natively. You add DataMCP's URL to `.cursor/mcp.json` with an Authorization header. Takes about 2 minutes to set up.
-
-**What PostgreSQL databases does it support?**
-Any PostgreSQL 12+ instance reachable over the internet: AWS RDS, Supabase, Neon, Google Cloud SQL, Azure, Heroku, Railway, Render, DigitalOcean, or self-hosted.
-
-**Is this secure for production databases?**
-DataMCP is built specifically for this use case. Credentials are encrypted at rest with AES-256-GCM, never stored as plaintext. Every query is parsed and validated before execution. You can restrict access to read-only, specific tables, or specific schemas. TRUNCATE/DROP/ALTER are blocked by default. Full audit trail of every query the AI ran.
-
-**How much does it cost?**
-Free tier: 1 database, 1 MCP link. Pro: $19/month for 3 databases and 5 MCP links. Enterprise: $49/month for 15 databases and 50 MCP links.
-
----
-
-## Links
-
-- **Website:** [datamcp.app](https://datamcp.app)
-- **Dashboard:** [dashboard.datamcp.app](https://dashboard.datamcp.app)
-- **Documentation:** [datamcp.app/docs](https://datamcp.app/docs)
-- **Changelog:** [datamcp.app/changelog](https://datamcp.app/changelog)
-- **Pricing:** [datamcp.app/pricing](https://datamcp.app/pricing)
-- **Contact:** hello@datamcp.app
+- MySQL or non-PostgreSQL database connections;
+- a self-hosted or on-premise edition;
+- SSO or SAML;
+- upstream OAuth authorization flows or automatic upstream token refresh;
+- activity logging for OpenAPI endpoint calls;
+- published SOC 2, HIPAA, or ISO 27001 certification claims;
+- a published uptime SLA.
+
+## Canonical metadata
+
+- Brand spelling: `datamcp`
+- Category: hosted MCP gateway
+- Supported source types: PostgreSQL 12+ and OpenAPI 3.x
+- Website: `https://datamcp.app`
+- Remote MCP endpoint: `https://api.datamcp.app/api/mcp`
+- Official MCP Registry package: `io.github.mironovisa/datamcp`
+
+Public product claims are reviewed against the current application behavior before publication.
+
+## Contact and contributions
+
+- Email: [hello@datamcp.app](mailto:hello@datamcp.app)
+- Bug reports and feature requests: [GitHub Issues](https://github.com/datamcpapp/datamcp-app/issues)
+- Contribution guide: [CONTRIBUTING.md](./CONTRIBUTING.md)
