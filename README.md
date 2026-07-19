@@ -54,6 +54,12 @@ MySQL connections expose schema context and single-statement SQL execution throu
 
 Product overview: [MySQL MCP server](https://datamcp.app/mysql-mcp-server)
 
+Practical MySQL resources:
+
+- [MySQL AI access security kit](https://datamcp.app/resources/mysql-ai-access-security-kit) — a downloadable SQL template for a host-scoped account, TLS, explicit table grants, effective-account checks, denial tests, and emergency revocation.
+- [Connect MySQL to Cursor with MCP](https://datamcp.app/blog/connect-mysql-to-cursor-mcp) — restricted-user setup, MCP configuration, and allowed/denied verification.
+- [MySQL MCP server comparison](https://datamcp.app/blog/best-mysql-mcp-servers-2026) — local, self-hosted, multi-engine, and hosted deployment options with ownership disclosure.
+
 ## OpenAPI and Swagger MCP
 
 OpenAPI connections expose four schema-aware MCP tools:
