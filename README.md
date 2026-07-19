@@ -1,8 +1,8 @@
 # datamcp
 
-**Hosted MCP gateway for PostgreSQL and OpenAPI.**
+**Hosted MCP gateway for PostgreSQL, MySQL, and OpenAPI.**
 
-`datamcp` turns a PostgreSQL 12+ database or an OpenAPI 3.x API into a managed remote HTTPS MCP endpoint for AI clients. It keeps backend credentials on the connection, authenticates MCP clients separately, and applies permissions per MCP link.
+`datamcp` turns a PostgreSQL 12+ database, MySQL database, or OpenAPI 3.x API into a managed remote HTTPS MCP endpoint for AI clients. It keeps backend credentials on the connection, authenticates MCP clients separately, and applies permissions per MCP link.
 
 - Website: [datamcp.app](https://datamcp.app)
 - Dashboard: [dashboard.datamcp.app](https://dashboard.datamcp.app)
@@ -14,7 +14,7 @@
 
 Use `datamcp` when Cursor, Claude, ChatGPT, VS Code, or another compatible remote MCP client needs controlled access to:
 
-- a PostgreSQL database without storing the database connection string in the AI client's configuration;
+- a PostgreSQL or MySQL database without storing the database connection string in the AI client's configuration;
 - a REST API described by OpenAPI 3.x, Swagger UI, or Redoc without generating and deploying a separate MCP server;
 - separate MCP links for different clients or users, each with its own authentication and source permissions.
 
@@ -25,9 +25,10 @@ Use `datamcp` when Cursor, Claude, ChatGPT, VS Code, or another compatible remot
 | Source | Current support |
 | --- | --- |
 | PostgreSQL | PostgreSQL 12+ through standard PostgreSQL credentials, including providers such as Supabase, Neon, AWS RDS, and Google Cloud SQL |
+| MySQL | MySQL through a `mysql://` URL or structured connection fields, with schema discovery and single-statement SQL execution |
 | OpenAPI | OpenAPI 3.x JSON or YAML specifications and supported Swagger UI or Redoc documentation pages |
 
-MySQL and other database engines are not currently supported.
+MariaDB and other database engines are not currently supported.
 
 ## PostgreSQL MCP
 
@@ -41,6 +42,17 @@ PostgreSQL connections expose schema and query tools through a hosted MCP endpoi
 - Connection credentials are encrypted at rest with AES-256-GCM.
 
 Product overview: [PostgreSQL MCP server](https://datamcp.app/postgresql-mcp-server)
+
+## MySQL MCP
+
+MySQL connections expose schema context and single-statement SQL execution through a hosted MCP endpoint.
+
+- Schema discovery covers tables and views, columns, primary keys, foreign keys, and indexes.
+- MCP link policy narrows allowed operations and remains bounded by the effective MySQL grants.
+- MySQL query execution and denied operations use the database activity path.
+- MySQL credentials remain server-side rather than being copied into each AI client.
+
+Product overview: [MySQL MCP server](https://datamcp.app/mysql-mcp-server)
 
 ## OpenAPI and Swagger MCP
 
@@ -64,7 +76,7 @@ Product overview: [OpenAPI to MCP](https://datamcp.app/openapi-to-mcp)
 Two separate security boundaries are involved:
 
 1. The MCP client authenticates to `datamcp` with an API key or OAuth 2.0 with PKCE.
-2. `datamcp` uses the connection credential to access the PostgreSQL database or upstream REST API.
+2. `datamcp` uses the connection credential to access the PostgreSQL database, MySQL database, or upstream REST API.
 
 Authentication identifies the MCP client. The MCP link then narrows the operations available to that client. Backend database grants or upstream API authorization remain an independent boundary.
 
@@ -95,7 +107,7 @@ See the [pricing page](https://datamcp.app/pricing) for the current public plan 
 
 `datamcp` does not currently offer:
 
-- MySQL or non-PostgreSQL database connections;
+- MariaDB and database engines other than PostgreSQL and MySQL;
 - a self-hosted or on-premise edition;
 - SSO or SAML;
 - upstream OAuth authorization flows or automatic upstream token refresh;
@@ -107,7 +119,7 @@ See the [pricing page](https://datamcp.app/pricing) for the current public plan 
 
 - Brand spelling: `datamcp`
 - Category: hosted MCP gateway
-- Supported source types: PostgreSQL 12+ and OpenAPI 3.x
+- Supported source types: PostgreSQL 12+, MySQL, and OpenAPI 3.x
 - Website: `https://datamcp.app`
 - Remote MCP endpoint: `https://api.datamcp.app/api/mcp`
 - Official MCP Registry package: `io.github.mironovisa/datamcp`
