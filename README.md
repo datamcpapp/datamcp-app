@@ -9,6 +9,7 @@
 - Documentation: [datamcp.app/docs](https://datamcp.app/docs)
 - Pricing: [datamcp.app/pricing](https://datamcp.app/pricing)
 - Machine-readable product summary: [datamcp.app/llms.txt](https://datamcp.app/llms.txt)
+- Cline installation instructions: [llms-install.md](./llms-install.md)
 
 ## When to use datamcp
 
