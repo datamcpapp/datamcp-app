@@ -13,15 +13,22 @@ The generated URL identifies the MCP link. The API key authenticates the MCP cli
 
 ## Cline CLI
 
-Replace both placeholders before running:
+Run Cline's interactive MCP manager:
 
 ```bash
-cline mcp install datamcp \
-  --transport http \
-  --header "Authorization: Bearer sk_live_REPLACE_ME" \
-  --yes \
-  "https://api.datamcp.app/api/mcp/conn_REPLACE_ME"
+cline mcp
 ```
+
+Then select:
+
+1. **Add server**
+2. Server name: `datamcp`
+3. Server type: **Remote (HTTP)**
+4. Server URL: your generated MCP link URL
+5. Authentication: **Static headers**
+6. Headers: `Authorization:Bearer YOUR_CLIENT_API_KEY`
+
+Use the complete generated MCP link URL and replace `YOUR_CLIENT_API_KEY` with the client API key shown in the link setup guide. Current Cline CLI releases manage MCP servers interactively; `cline mcp install` is not a supported command.
 
 ## Manual Cline configuration
 
@@ -31,17 +38,19 @@ Add the server to Cline's MCP settings using its Streamable HTTP transport:
 {
   "mcpServers": {
     "datamcp": {
-      "transport": {
-        "type": "streamableHttp",
-        "url": "https://api.datamcp.app/api/mcp/conn_REPLACE_ME",
-        "headers": {
-          "Authorization": "Bearer sk_live_REPLACE_ME"
-        }
-      }
+      "type": "streamableHttp",
+      "url": "https://api.datamcp.app/api/mcp/conn_REPLACE_ME",
+      "headers": {
+        "Authorization": "Bearer sk_live_REPLACE_ME"
+      },
+      "disabled": false,
+      "autoApprove": []
     }
   }
 }
 ```
+
+For Cline CLI, the global MCP settings file is `~/.cline/data/settings/cline_mcp_settings.json`. In the Cline editor extension, open **MCP Servers → Configure MCP Servers** instead of guessing the settings path.
 
 ## Verify the connection
 

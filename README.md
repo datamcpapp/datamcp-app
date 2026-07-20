@@ -128,7 +128,7 @@ See the [pricing page](https://datamcp.app/pricing) for the current public plan 
 - Category: hosted MCP gateway
 - Supported source types: PostgreSQL 12+, MySQL, and OpenAPI 3.x
 - Website: `https://datamcp.app`
-- Remote MCP endpoint: `https://api.datamcp.app/api/mcp`
+- Base MCP transport endpoint for registry metadata: `https://api.datamcp.app/api/mcp` (not a client-ready MCP link; configure AI clients with the generated per-link URL from the dashboard)
 - Official MCP Registry package: `io.github.mironovisa/datamcp`
 
 Public product claims are reviewed against the current application behavior before publication.
