@@ -1,14 +1,15 @@
 # datamcp
 
-**Hosted MCP gateway for PostgreSQL, MySQL, and OpenAPI.**
+**Hosted Model Context Protocol (MCP) gateway for PostgreSQL, MySQL, and OpenAPI.**
 
-`datamcp` turns a PostgreSQL 12+ database, MySQL database, or OpenAPI 3.x API into a managed remote HTTPS MCP endpoint for AI clients. It keeps backend credentials on the connection, authenticates MCP clients separately, and applies permissions per MCP link.
+`datamcp` turns a PostgreSQL 12+ database, MySQL database, or OpenAPI 3.x API into a managed remote HTTPS Model Context Protocol endpoint for AI clients. It keeps backend credentials on the connection, authenticates MCP clients separately, and applies permissions per MCP link.
 
 - Website: [datamcp.app](https://datamcp.app)
 - Dashboard: [dashboard.datamcp.app](https://dashboard.datamcp.app)
 - Documentation: [datamcp.app/docs](https://datamcp.app/docs)
 - Pricing: [datamcp.app/pricing](https://datamcp.app/pricing)
 - Machine-readable product summary: [datamcp.app/llms.txt](https://datamcp.app/llms.txt)
+- Security model: [SECURITY.md](./SECURITY.md)
 - Cline installation instructions: [llms-install.md](./llms-install.md)
 
 ## When to use datamcp
@@ -125,7 +126,7 @@ See the [pricing page](https://datamcp.app/pricing) for the current public plan 
 ## Canonical metadata
 
 - Brand spelling: `datamcp`
-- Category: hosted MCP gateway
+- Category: hosted Model Context Protocol gateway
 - Supported source types: PostgreSQL 12+, MySQL, and OpenAPI 3.x
 - Website: `https://datamcp.app`
 - Base MCP transport endpoint for registry metadata: `https://api.datamcp.app/api/mcp` (not a client-ready MCP link; configure AI clients with the generated per-link URL from the dashboard)
