@@ -131,6 +131,7 @@ See the [pricing page](https://datamcp.app/pricing) for the current public plan 
 - Website: `https://datamcp.app`
 - Base MCP transport endpoint for registry metadata: `https://api.datamcp.app/api/mcp` (not a client-ready MCP link; configure AI clients with the generated per-link URL from the dashboard)
 - Official MCP Registry package: `io.github.mironovisa/datamcp`
+- Cline Marketplace icon: [`assets/datamcp-cline.png`](./assets/datamcp-cline.png) (`400×400` PNG)
 
 Public product claims are reviewed against the current application behavior before publication.
 

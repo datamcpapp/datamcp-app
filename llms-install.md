@@ -26,7 +26,7 @@ Then select:
 3. Server type: **Remote (HTTP)**
 4. Server URL: your generated MCP link URL
 5. Authentication: **Static headers**
-6. Headers: `Authorization:Bearer YOUR_CLIENT_API_KEY`
+6. Headers: `Authorization: Bearer YOUR_CLIENT_API_KEY`
 
 Use the complete generated MCP link URL and replace `YOUR_CLIENT_API_KEY` with the client API key shown in the link setup guide. Current Cline CLI releases manage MCP servers interactively; `cline mcp install` is not a supported command.
 
@@ -61,3 +61,11 @@ After Cline reports the server as connected:
 3. Attempt an operation denied by the link policy and confirm that it is blocked.
 
 For setup details and troubleshooting, use https://datamcp.app/docs. Never commit a real API key, MCP link secret, database connection string, or upstream API credential to a repository.
+
+## Cline Marketplace installation test
+
+To validate this repository before Marketplace submission, give Cline only this file or the repository `README.md` and ask:
+
+> Set up this hosted MCP server in Cline using the generated MCP link URL and client API key shown in my datamcp dashboard. Do not clone the repository or start a local process. After connecting, list the tools and run one operation allowed by the MCP-link policy.
+
+The test passes when Cline configures the generated Streamable HTTP link, sends the Bearer header, reports the server as connected, lists its tools, and completes an allowed operation. Revoke the restricted test link after review.
