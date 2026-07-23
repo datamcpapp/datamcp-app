@@ -106,8 +106,8 @@ Setup guides: [Cursor](https://datamcp.app/integrations/cursor), [Claude](https:
 | Plan | Price | Source connections | MCP links | Members | Activity retention |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Free | $0 | 1 | 1 | 2 | 7 days |
-| Pro | $19/month | 10 | Unlimited | 10 | 30 days |
-| Enterprise | $49/month | Unlimited | Unlimited | Unlimited | 365 days |
+| Pro | $19/month | 3 | 5 | 5 | 30 days |
+| Enterprise | $49/month | 15 | 50 | 25 | 365 days |
 
 See the [pricing page](https://datamcp.app/pricing) for the current public plan details.
 
@@ -134,6 +134,18 @@ See the [pricing page](https://datamcp.app/pricing) for the current public plan 
 - Cline Marketplace icon: [`assets/datamcp-cline.png`](./assets/datamcp-cline.png) (`400×400` PNG)
 
 Public product claims are reviewed against the current application behavior before publication.
+
+## Registry and ecosystem profiles
+
+These profiles refer to the same hosted `datamcp` service and canonical `io.github.mironovisa/datamcp` Registry identity:
+
+- [Official MCP Registry](https://registry.modelcontextprotocol.io/?q=io.github.mironovisa%2Fdatamcp) — canonical package metadata;
+- [Smithery](https://smithery.ai/servers/mironovisa/datamcp) — verified server profile;
+- [Glama](https://glama.ai/mcp/connectors/io.github.mironovisa/datamcp) — hosted connector profile;
+- [MCPServers.org](https://mcpservers.org/servers/datamcp-app-docs) — documentation profile;
+- [MCP Server Hub](https://mcpserver.dev/s/datamcp-hosted-mcp-gateway_xap6f5n) — curated directory listing.
+
+The official [Cline MCP Marketplace submission](https://github.com/cline/mcp-marketplace/issues/2097) is under review.
 
 ## Contact and contributions
 
