@@ -1,13 +1,14 @@
 # datamcp
 
-**Hosted Model Context Protocol (MCP) gateway for PostgreSQL, MySQL, and OpenAPI.**
+**Hosted Model Context Protocol (MCP) endpoints for PostgreSQL, MySQL, OpenAPI and Swagger APIs, and shared Agent Memory.**
 
-`datamcp` turns a PostgreSQL 12+ database, MySQL database, or OpenAPI 3.x API into a managed remote HTTPS Model Context Protocol endpoint for AI clients. It keeps backend credentials on the connection, authenticates MCP clients separately, and applies permissions per MCP link.
+`datamcp` turns a PostgreSQL 12+ database, MySQL database, OpenAPI 3.x API, or Agent Memory source into a managed remote HTTPS Model Context Protocol endpoint for AI clients. It hosts the transport and storage layer, authenticates MCP clients separately, and applies permissions per MCP link.
 
 - Website: [datamcp.app](https://datamcp.app)
 - Dashboard: [dashboard.datamcp.app](https://dashboard.datamcp.app)
 - Documentation: [datamcp.app/docs](https://datamcp.app/docs)
 - Pricing: [datamcp.app/pricing](https://datamcp.app/pricing)
+- Agent Memory: [datamcp.app/mcp-memory-server](https://datamcp.app/mcp-memory-server)
 - Machine-readable product summary: [datamcp.app/llms.txt](https://datamcp.app/llms.txt)
 - Security model: [SECURITY.md](./SECURITY.md)
 - Cline installation instructions: [llms-install.md](./llms-install.md)
@@ -18,6 +19,7 @@ Use `datamcp` when Cursor, Claude, ChatGPT, VS Code, or another compatible remot
 
 - a PostgreSQL or MySQL database without storing the database connection string in the AI client's configuration;
 - a REST API described by OpenAPI 3.x, Swagger UI, or Redoc without generating and deploying a separate MCP server;
+- shared, project-scoped memory that compatible AI clients can search, append to, compact, and use for handoffs;
 - separate MCP links for different clients or users, each with its own authentication and source permissions.
 
 `datamcp` hosts the MCP transport and control layer. It is not a marketplace for proxying arbitrary third-party MCP servers.
@@ -29,6 +31,7 @@ Use `datamcp` when Cursor, Claude, ChatGPT, VS Code, or another compatible remot
 | PostgreSQL | PostgreSQL 12+ through standard PostgreSQL credentials, including providers such as Supabase, Neon, AWS RDS, and Google Cloud SQL |
 | MySQL | MySQL through a `mysql://` URL or structured connection fields, with schema discovery and single-statement SQL execution |
 | OpenAPI | OpenAPI 3.x JSON or YAML specifications and supported Swagger UI or Redoc documentation pages |
+| Agent Memory | Hosted, project-scoped memory with structured append-only entries, filtered full-text search, canonical Rules and Project Summary, and compact handoffs |
 
 MariaDB and other database engines are not currently supported.
 
@@ -79,12 +82,27 @@ OpenAPI endpoint calls do not currently appear in the `datamcp` activity log. Us
 
 Product overview: [OpenAPI to MCP](https://datamcp.app/openapi-to-mcp)
 
+## Agent Memory MCP
+
+Agent Memory provides a hosted shared project record for compatible AI clients such as Cursor, Claude, Codex, ChatGPT, and VS Code.
+
+- One memory source can contain separate projects for repositories, products, clients, or workstreams.
+- MCP links can be scoped to one project.
+- Read Only supports canonical reads, search, entry retrieval, and handoffs.
+- Read & Append adds session registration, structured entries, compaction, and canonical change proposals.
+- Full Access can apply canonical Rules or Project Summary changes directly for an owner/admin API key user.
+- Work-log entries are append-only. Compaction can archive entries from default results without deleting them.
+- Search uses PostgreSQL full-text search and filters, not vector embeddings or semantic recall.
+- The AI client must explicitly call memory tools; `datamcp` does not automatically write after every task.
+
+Product overview: [Hosted MCP Memory Server](https://datamcp.app/mcp-memory-server)
+
 ## Authentication and permissions
 
 Two separate security boundaries are involved:
 
 1. The MCP client authenticates to `datamcp` with an API key or OAuth 2.0 with PKCE.
-2. `datamcp` uses the connection credential to access the PostgreSQL database, MySQL database, or upstream REST API.
+2. `datamcp` uses the connection credential to access PostgreSQL, MySQL, or an upstream REST API. Agent Memory uses hosted project storage instead of an external source credential.
 
 Authentication identifies the MCP client. The MCP link then narrows the operations available to that client. Backend database grants or upstream API authorization remain an independent boundary.
 
@@ -127,7 +145,7 @@ See the [pricing page](https://datamcp.app/pricing) for the current public plan 
 
 - Brand spelling: `datamcp`
 - Category: hosted Model Context Protocol gateway
-- Supported source types: PostgreSQL 12+, MySQL, and OpenAPI 3.x
+- Supported source types: PostgreSQL 12+, MySQL, OpenAPI 3.x and Swagger APIs, and Agent Memory
 - Website: `https://datamcp.app`
 - Base MCP transport endpoint for registry metadata: `https://api.datamcp.app/api/mcp` (not a client-ready MCP link; configure AI clients with the generated per-link URL from the dashboard)
 - Official MCP Registry package: `io.github.mironovisa/datamcp`

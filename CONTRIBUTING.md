@@ -13,7 +13,7 @@ Open an issue with the **bug** label. Include:
 - What you were trying to do
 - What happened instead
 - Which AI tool you're using (Cursor, Claude Desktop, VS Code, etc.)
-- Your source type and provider, such as PostgreSQL on RDS, Supabase, or Neon, or an OpenAPI specification URL
+- Your source type and provider, such as PostgreSQL on RDS, MySQL, Supabase, Neon, an OpenAPI specification URL, or Agent Memory
 - Any error messages from the `datamcp` dashboard or your AI tool
 
 For connection or authentication issues, also include the MCP transport type (streamable-http or SSE) and whether you're using an API key or OAuth.

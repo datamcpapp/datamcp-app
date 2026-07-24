@@ -1,6 +1,6 @@
 # datamcp security model
 
-`datamcp` is a hosted Model Context Protocol gateway for PostgreSQL 12+, MySQL, and OpenAPI 3.x. This document describes the product's current security boundaries and the controls users should combine with them.
+`datamcp` provides hosted Model Context Protocol endpoints for PostgreSQL 12+, MySQL, OpenAPI and Swagger APIs, and Agent Memory. This document describes the product's current security boundaries and the controls users should combine with them.
 
 ## Separate authentication boundaries
 
@@ -27,6 +27,14 @@ For OpenAPI connections:
 - Read Only permits `GET` and `HEAD` while blocking `POST`, `PUT`, `PATCH`, and `DELETE`.
 - Individual operations can be hidden from discovery and execution.
 - An allowed `GET` is not guaranteed to be side-effect-free or non-sensitive; API semantics and API-side authorization remain the API owner's responsibility.
+
+For Agent Memory sources:
+
+- Read Only permits project listing, canonical Rules and Project Summary reads, search, entry retrieval, and handoff context.
+- Read & Append adds sessions, structured append-only entries, compaction, and canonical change proposals.
+- Full Access may expose direct canonical changes to an owner/admin API key user.
+- An MCP link can be scoped to one memory project and revoked independently.
+- Memory entries and summaries are untrusted project content until reviewed. Canonical Rules and Project Summary use a separate review boundary.
 
 ## Credential storage
 

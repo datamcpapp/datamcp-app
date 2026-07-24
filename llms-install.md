@@ -5,7 +5,7 @@
 ## Prerequisites
 
 1. Create an account at https://dashboard.datamcp.app.
-2. Add a PostgreSQL 12+, MySQL, or OpenAPI connection.
+2. Add a PostgreSQL 12+, MySQL, or OpenAPI connection, or create an Agent Memory source.
 3. Create an MCP link with the required source permissions.
 4. Copy the generated remote MCP URL and its client API key from the link setup guide.
 
@@ -56,7 +56,7 @@ For Cline CLI, the global MCP settings file is `~/.cline/data/settings/cline_mcp
 
 After Cline reports the server as connected:
 
-1. Ask it to list the available database schema or API endpoints.
+1. Ask it to list the available database schema, API endpoints, or memory projects.
 2. Run one operation allowed by the MCP link.
 3. Attempt an operation denied by the link policy and confirm that it is blocked.
 
