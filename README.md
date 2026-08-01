@@ -1,8 +1,8 @@
 # datamcp
 
-**Hosted Model Context Protocol (MCP) endpoints for PostgreSQL, MySQL, OpenAPI and Swagger APIs, and shared Agent Memory.**
+**Hosted Model Context Protocol gateway for PostgreSQL, MySQL, and OpenAPI/Swagger, plus a hosted MCP memory server for structured shared Agent Memory.**
 
-`datamcp` turns a PostgreSQL 12+ database, MySQL database, OpenAPI 3.x API, or Agent Memory source into a managed remote HTTPS Model Context Protocol endpoint for AI clients. It hosts the transport and storage layer, authenticates MCP clients separately, and applies permissions per MCP link.
+`datamcp` turns a PostgreSQL 12+ database, MySQL database, OpenAPI 3.x API, or Agent Memory project into a managed remote HTTPS Model Context Protocol endpoint for AI clients. It hosts the transport and memory layer, authenticates MCP clients separately, and applies source permissions and project scope per MCP link.
 
 - Website: [datamcp.app](https://datamcp.app)
 - Dashboard: [dashboard.datamcp.app](https://dashboard.datamcp.app)
